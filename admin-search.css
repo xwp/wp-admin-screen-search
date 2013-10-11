@@ -1,0 +1,64 @@
+#wpadminbar #wp-admin-bar-admin-search .ab-item {
+	background:transparent;
+	padding:0;
+}
+
+#wpadminbar #admin-search-form {
+	height:28px;
+	padding:0 2px;
+}
+
+#wpadminbar #admin-search-form .admin-search-input {
+	font:13px/24px sans-serif;
+	height:24px;
+	width:24px;
+	border:0;
+	color:#ccc;
+	text-shadow:#444 0 -1px 0;
+	background-color:rgba(255,255,255,0);
+	background-image:url(admin-search-icon.png);
+	background-position:3px 3px;
+	background-repeat:no-repeat;
+	outline:0;
+	cursor:pointer;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	-webkit-box-shadow:none;
+	box-shadow:none;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	-ms-box-sizing:border-box;
+	box-sizing:border-box;
+	-webkit-transition-duration:400ms;
+	-webkit-transition-property:width,background;
+	-webkit-transition-timing-function:ease;
+	-moz-transition-duration:400ms;
+	-moz-transition-property:width,background;
+	-moz-transition-timing-function:ease;
+	-o-transition-duration:400ms;
+	-o-transition-property:width,background;
+	-o-transition-timing-function:ease;
+	margin:0;
+	padding:0 3px 0 23px;
+}
+
+#wpadminbar.ie7 #admin-search-form .admin-search-input {
+	margin-top:1px;
+	width:120px;
+}
+
+#wpadminbar #admin-search-form .admin-search-input:focus {
+	color:#555;
+	text-shadow:0 1px 0 #fff;
+	width:200px;
+	background-color:rgba(255,255,255,0.9);
+	cursor:text;
+}
+
+#wpadminbar.ie8 #admin-search-form .admin-search-input {
+	background-color:#464646;
+}
+
+#wpadminbar #admin-search-form .admin-search-submit {
+	display: none;
+}
