@@ -27,6 +27,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @todo need a way to remove Admin Screens when they're deleted (like if a plugin is deactivated)
  */
 
 
@@ -55,6 +57,7 @@ class Admin_Screen_Search {
 		add_action( 'admin_init', array( __CLASS__ , 'enqueue_scripts' ) );
 		add_action( 'init', array( __CLASS__ , 'create_search_index_post_type' ) );
 		add_action( 'wp_ajax_update_search_index', array( __CLASS__ , 'update_search_index' ) );
+		add_action( 'wp_ajax_admin_screen_search_autocomplete', array( __CLASS__ , 'admin_screen_search_autocomplete' ) );
 		add_action( 'admin_bar_menu', array( __CLASS__ , 'admin_bar_search' ) );
 
 		//Remove the following line before Production
@@ -222,7 +225,7 @@ class Admin_Screen_Search {
 
 		update_post_meta( $post_ID, 'search_admin_page', $path );
 
-		self::sort_save_markup( $post_ID, $markup, self::$tags );
+		self::sort_save_markup( $post_ID, $markup );
 
 		exit();
 	}
@@ -238,7 +241,7 @@ class Admin_Screen_Search {
 	 * @param  string  $markup   HTML of current Admin Screen
 	 * @param  array   $tags     List of HTML tags
 	 */
-	static function sort_save_markup( $post_ID = null, $markup = null, $tags ) {
+	static function sort_save_markup( $post_ID = null, $markup = null ) {
 
 		if ( is_null( $post_ID ) || is_null( $markup ) ){
 			$error = json_encode( "Error Saving Markup" );
@@ -249,7 +252,7 @@ class Admin_Screen_Search {
 		$dom = new DOMDocument();
 		$dom->loadHTML( $markup );
 
-		foreach ( $tags as $tag ) {
+		foreach ( self::$tags as $tag ) {
 			$content_array = array();
 			$elements = $dom->getElementsByTagName( $tag );
 			foreach ( $elements as $element ) {
@@ -315,6 +318,60 @@ class Admin_Screen_Search {
 		return apply_filters( 'get_admin_search_form', ob_get_clean(), $args, $defaults );
 	}
 
+	/**
+	 *
+	 *
+	 *
+	 * @action admin_screen_search_autocomplete
+	 */
+
+	static function admin_screen_search_autocomplete() {
+
+		$user_ID = get_current_user_id();
+
+		$args = array(
+			'author'         => $user_ID,
+			'post_type'      => 'search_index',
+		);
+		$posts = get_posts( $args );
+
+		$strings = array();
+		// For each post, get all tags values saved in post meta and save to array
+		foreach ( $posts as $post ) {
+			$post_ID = $post->ID;
+			foreach ( self::$tags as $tag ) {
+				$post_meta = get_post_meta( $post_ID, $tag, true );
+				if ( is_array( $post_meta ) ) {
+					foreach ( $post_meta as $string ) {
+						$strings[] = $post_ID . ' ' . $tag . ' ' . $string;
+					}
+				} else {
+					$strings[] = $post_ID . ' ' . $tag . ' ' . $post_meta;
+				}
+			}
+			$strings[] = '//////';
+		}
+
+		// Assemble the Response
+		$response = '';
+		$first = true;
+		foreach ( $strings as $string ) {
+			// Insert a comma between values
+			if ( ! $first ) {
+				$response .=  ',';
+			} else {
+				$first = false;
+			}
+			$response .= $string . ' ';
+
+		}
+
+		echo json_encode( $response );
+
+		exit();
+
+	}
+
 }
 
-add_action( 'plugins_loaded', array( 'Admin_Search', 'setup' ) );
+add_action( 'plugins_loaded', array( 'Admin_Screen_Search', 'setup' ) );

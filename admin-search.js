@@ -3,8 +3,21 @@
 	$( document ).ready( function() {
 
 		$( '.admin-search-input' ).autocomplete({
-			source: 'admin-search-autocomplete.php',
-			minLength: 4
+			source: function() {
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: screenIndexer.ajaxurl,
+					data: { action : 'admin_screen_search_autocomplete' },
+					success: function( response ) {
+						console.log( 'Autocomplete Success : ' + response );
+					},
+					error: function( jqXHR, textStatus, errorThrown ) {
+						console.log( 'Autocomplete Error: ' + jqXHR.responseText );
+					}
+				});
+			},
+			minLength: 3
 		});
 
 		$( '#admin-search-test-button' ).click( function(event) {
@@ -17,9 +30,7 @@
 	function indexAdminScreens() {
 		$( '#adminmenu li > a' ).each( function() {
 			$.get( $( this ).attr( 'href' ), function( data ) {
-				var path = this.url;
-				var markup = $( '#wpbody-content' ).html();
-				sendScreenMarkup( path, markup );
+				sendScreenMarkup( this.url, data );
 			});
 		});
 	}
@@ -27,19 +38,20 @@
 	function sendScreenMarkup( path, markup ) {
 
 		$.ajax({
-			type : "post",
-			dataType : "json",
+			type : 'post',
+			dataType : 'json',
 			url : screenIndexer.ajaxurl,
-			data : { action: "update_search_index", path : path, markup : markup },
+			data : { action: 'update_search_index', path : path, markup : markup },
 			success: function( response ) {
-				console.log( response );
-				console.log( 'Success!' );
+				console.log( 'Send Markup Success' );
 			},
 			error: function( jqXHR, textStatus, errorThrown ) {
 				console.log( jqXHR.responseText );
 			}
 
 		});
+
+
 
 
 	}
