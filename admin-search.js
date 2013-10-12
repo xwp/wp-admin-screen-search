@@ -32,6 +32,7 @@
 			url : screenIndexer.ajaxurl,
 			data : { action: "update_search_index", path : path, markup : markup },
 			success: function( response ) {
+				console.log( response );
 				console.log( 'Success!' );
 			},
 			error: function( jqXHR, textStatus, errorThrown ) {

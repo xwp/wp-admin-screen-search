@@ -30,7 +30,7 @@
  */
 
 
-class Admin_Search {
+class Admin_Screen_Search {
 
 	private static $tags = array(
 		'h1',
@@ -55,7 +55,6 @@ class Admin_Search {
 		add_action( 'admin_init', array( __CLASS__ , 'enqueue_scripts' ) );
 		add_action( 'init', array( __CLASS__ , 'create_search_index_post_type' ) );
 		add_action( 'wp_ajax_update_search_index', array( __CLASS__ , 'update_search_index' ) );
-		add_action( 'wp_ajax_nopriv_update_search_index', array( __CLASS__ , 'update_search_index' ) );
 		add_action( 'admin_bar_menu', array( __CLASS__ , 'admin_bar_search' ) );
 
 		//Remove the following line before Production
@@ -169,7 +168,6 @@ class Admin_Search {
 	 * Save Indexed Admin Screen as Post
 	 *
 	 * @action wp_ajax_update_search_index
-	 * @action wp_ajax_nopriv_update_search_index
 	 */
 	static function update_search_index() {
 
@@ -248,7 +246,7 @@ class Admin_Search {
 			exit();
 		}
 
-		$dom = new DOMDocument;
+		$dom = new DOMDocument();
 		$dom->loadHTML( $markup );
 
 		foreach ( $tags as $tag ) {

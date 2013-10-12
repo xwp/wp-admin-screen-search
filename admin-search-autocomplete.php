@@ -1,22 +1,5 @@
 <?php
 
-$tags = array(
-		'h1',
-		'h2',
-		'h3',
-		'h4',
-		'h5',
-		'h6',
-		'th',
-		'label',
-		'td',
-		'a',
-		'strong',
-		'em',
-		'p',
-		'span'
-	);
-
 $user_ID = get_current_user();
 
 $args = array(
@@ -29,10 +12,10 @@ $strings = array();
 // For each post, get all tags values saved in post meta and save to array
 foreach ( $posts as $post ) {
 	$post_ID = $post->ID;
-	foreach( $tags as $tag ) {
+	foreach ( Admin_Screen_Search::$tags as $tag ) {
 		$post_meta = get_post_meta( $post_ID, $tag, true );
 		if ( is_array( $post_meta ) {
-			foreach( $post_meta as $string ) {
+			foreach ( $post_meta as $string ) {
 				$strings[] = $post_meta;
 			}
 		} else {
