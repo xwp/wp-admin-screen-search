@@ -3,12 +3,12 @@
 	$( document ).ready( function() {
 
 		$( '.admin-search-input' ).autocomplete({
-			source: function() {
+			source: function( request, response ) {
 				$.ajax({
 					type: 'post',
 					dataType: 'json',
 					url: screenIndexer.ajaxurl,
-					data: { action : 'admin_screen_search_autocomplete' },
+					data: { action : 'admin_screen_search_autocomplete', term : request.term },
 					success: function( response ) {
 						console.log( 'Autocomplete Success : ' + response );
 					},

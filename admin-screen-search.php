@@ -327,6 +327,8 @@ class Admin_Screen_Search {
 
 	static function admin_screen_search_autocomplete() {
 
+		$term = isset( $_POST['term'] ) ? $_POST['term'] : '' ;
+
 		$user_ID = get_current_user_id();
 
 		$args = array(
@@ -356,14 +358,15 @@ class Admin_Screen_Search {
 		$response = '';
 		$first = true;
 		foreach ( $strings as $string ) {
-			// Insert a comma between values
-			if ( ! $first ) {
-				$response .=  ',';
-			} else {
-				$first = false;
+			if ( strpos( $string, $term ) !== false ) {
+				// Insert a comma between values
+				if ( ! $first ) {
+					$response .=  ',';
+				} else {
+					$first = false;
+				}
+				$response .= $string . ' ';
 			}
-			$response .= $string . ' ';
-
 		}
 
 		echo json_encode( $response );
