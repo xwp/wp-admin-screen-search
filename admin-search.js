@@ -13,10 +13,17 @@
 					data: { action : 'admin_screen_search_autocomplete', term : request.term },
 					success: function( data ) {
 							console.log( data );
-							$( '#adminmenu a' ).css( 'color', origColor );
+							$( '#adminmenu li.wp-has-submenu' ).removeClass( 'opensub' );
+							$( '#adminmenu a' ).removeClass( 'admin-search-result' ).css( 'color', origColor );
 							$.each( data, function( slug, string ) {
 								console.log( slug );
-							$( '#adminmenu a[href$="' + slug + '"]' ).css( { 'color' : '#f00' });
+							$( '#adminmenu a[href$="' + slug + '"]' ).addClass( 'admin-search-result' ).css( { 'color' : '#f00' });
+							});
+							$.each( $( '#adminmenu > li.wp-has-submenu' ), function() {
+								self = $( this );
+								if ( $( 'ul li a', this ).hasClass( 'admin-search-result' ) ) {
+									self.addClass( 'opensub' );
+								};
 							});
 					},
 					error: function( jqXHR, textStatus, errorThrown ) {
@@ -26,8 +33,6 @@
 			},
 			minLength: 1
 		});
-
-		$( '.admin-search-input' ).attr( 'autocomplete', 'on' );
 
 		$( '#admin-search-test-button' ).click( function(event) {
 			event.preventDefault();
