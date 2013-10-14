@@ -2,6 +2,8 @@
 
 	$( document ).ready( function() {
 
+		var origColor = $( '#adminmenu a' ).css( 'color' );
+
 		$( '.admin-search-input' ).autocomplete({
 			source: function( request, response ) {
 				$.ajax({
@@ -9,16 +11,23 @@
 					dataType: 'json',
 					url: screenIndexer.ajaxurl,
 					data: { action : 'admin_screen_search_autocomplete', term : request.term },
-					success: function( response ) {
-						console.log( 'Autocomplete Success : ' + response );
+					success: function( data ) {
+							console.log( data );
+							$( '#adminmenu a' ).css( 'color', origColor );
+							$.each( data, function( slug, string ) {
+								console.log( slug );
+							$( '#adminmenu a[href$="' + slug + '"]' ).css( { 'color' : '#f00' });
+							});
 					},
 					error: function( jqXHR, textStatus, errorThrown ) {
 						console.log( 'Autocomplete Error: ' + jqXHR.responseText );
 					}
 				});
 			},
-			minLength: 3
+			minLength: 1
 		});
+
+		$( '.admin-search-input' ).attr( 'autocomplete', 'on' );
 
 		$( '#admin-search-test-button' ).click( function(event) {
 			event.preventDefault();

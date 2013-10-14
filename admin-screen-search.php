@@ -236,6 +236,7 @@ class Admin_Screen_Search {
 	 *
 	 * @todo   Need to account for 'alt' and 'title' attributes
 	 * @todo   Eliminate errors thrown by loadHTML()
+	 * @todo   Combine preg_replaces
 	 *
 	 * @param  int     $post_ID  Post ID of Admin Screen
 	 * @param  string  $markup   HTML of current Admin Screen
@@ -248,6 +249,19 @@ class Admin_Screen_Search {
 			echo $error;
 			exit();
 		}
+
+		// I'm sure we can combine these preg_replaces
+		// Remove line breaks
+		$markup = preg_replace( '/\r|\n/', ' ', $markup );
+		// Remove More than 2 spaces
+		$markup = preg_replace( '/\s{3,}/',' ', $markup );
+		// Remove Tabs
+		$markup = preg_replace( '/\t+/', ' ', $markup );
+
+		$markup = stripslashes( $markup );
+
+		// Suppress loadHTML errors
+		libxml_use_internal_errors( true );
 
 		$dom = new DOMDocument();
 		$dom->loadHTML( $markup );
@@ -334,38 +348,36 @@ class Admin_Screen_Search {
 		$args = array(
 			'author'         => $user_ID,
 			'post_type'      => 'search_index',
+			'posts_per_page' => -1,
 		);
 		$posts = get_posts( $args );
 
 		$strings = array();
-		// For each post, get all tags values saved in post meta and save to array
+		// For each post, get all tags values saved in post meta and save to an array
+		$i = 0;
 		foreach ( $posts as $post ) {
 			$post_ID = $post->ID;
 			foreach ( self::$tags as $tag ) {
 				$post_meta = get_post_meta( $post_ID, $tag, true );
 				if ( is_array( $post_meta ) ) {
 					foreach ( $post_meta as $string ) {
-						$strings[] = $post_ID . ' ' . $tag . ' ' . $string;
+						$strings[$i]['slug'] = $post->post_title;
+						$strings[$i]['string'] = $string;
 					}
 				} else {
-					$strings[] = $post_ID . ' ' . $tag . ' ' . $post_meta;
+					$strings[$i]['slug'] = $post->post_title;
+					$strings[$i]['string'] = $post_meta;
 				}
+				$i++;
 			}
-			$strings[] = '//////';
 		}
 
 		// Assemble the Response
-		$response = '';
-		$first = true;
+		$response = array();
 		foreach ( $strings as $string ) {
-			if ( strpos( $string, $term ) !== false ) {
-				// Insert a comma between values
-				if ( ! $first ) {
-					$response .=  ',';
-				} else {
-					$first = false;
-				}
-				$response .= $string . ' ';
+			if ( strpos( $string['string'], $term ) !== false ) {
+				$slug = $string['slug'];
+				$response[$slug] = $slug . " : " . $string['string'];
 			}
 		}
 
