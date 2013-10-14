@@ -2,8 +2,6 @@
 
 	$( document ).ready( function() {
 
-		var origColor = $( '#adminmenu a' ).css( 'color' );
-
 		$( '.admin-search-input' ).autocomplete({
 			source: function( request, response ) {
 				$.ajax({
@@ -14,10 +12,10 @@
 					success: function( data ) {
 							console.log( data );
 							$( '#adminmenu li.wp-has-submenu' ).removeClass( 'opensub' );
-							$( '#adminmenu a' ).removeClass( 'admin-search-result' ).css( 'color', origColor );
-							$.each( data, function( slug, string ) {
-								console.log( slug );
-							$( '#adminmenu a[href$="' + slug + '"]' ).addClass( 'admin-search-result' ).css( { 'color' : '#f00' });
+							$( '#adminmenu a' ).removeClass( 'admin-search-result h1 h2 h3 h4 h5 h6 th label td a strong em p span' )
+							$.each( data, function( slug, array ) {
+									console.log( array.tag );
+								$( '#adminmenu a[href$="' + slug + '"]' ).addClass( 'admin-search-result ' + array.tag );
 							});
 							$.each( $( '#adminmenu > li.wp-has-submenu' ), function() {
 								self = $( this );

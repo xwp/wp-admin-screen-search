@@ -362,10 +362,12 @@ class Admin_Screen_Search {
 				if ( is_array( $post_meta ) ) {
 					foreach ( $post_meta as $string ) {
 						$strings[$i]['slug'] = $post->post_title;
+						$strings[$i]['tag'] = $tag;
 						$strings[$i]['string'] = $string;
 					}
 				} else {
 					$strings[$i]['slug'] = $post->post_title;
+					$strings[$i]['tag'] = $tag;
 					$strings[$i]['string'] = $post_meta;
 				}
 				$i++;
@@ -377,7 +379,8 @@ class Admin_Screen_Search {
 		foreach ( $strings as $string ) {
 			if ( strpos( $string['string'], $term ) !== false ) {
 				$slug = $string['slug'];
-				$response[$slug] = $slug . " : " . $string['string'];
+				$response[$slug]['tag'] = $string['tag'];
+				$response[$slug]['string'] = $string['string'];
 			}
 		}
 
