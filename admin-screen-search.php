@@ -29,6 +29,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @todo need a way to remove Admin Screens when they're deleted (like if a plugin is deactivated)
+ * @todo add cleanup on uninstall
  */
 
 
