@@ -28,8 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * @todo need a way to remove Admin Screens when they're deleted (like if a plugin is deactivated)
- * @todo add cleanup on uninstall
+ * @todo ignore hoverIntent's out callback while text is in search input.
  */
 
 
@@ -59,10 +58,8 @@ class Admin_Screen_Search {
 		add_action( 'init', array( __CLASS__ , 'create_search_index_post_type' ) );
 		add_action( 'wp_ajax_update_search_index', array( __CLASS__ , 'update_search_index' ) );
 		add_action( 'wp_ajax_admin_screen_search_autocomplete', array( __CLASS__ , 'admin_screen_search_autocomplete' ) );
+		add_action( 'wp_ajax_check_screens', array( __CLASS__ , 'check_screens' ) );
 		add_action( 'admin_bar_menu', array( __CLASS__ , 'admin_bar_search' ) );
-
-		//Remove the following line before Production
-		add_action( 'adminmenu', array( __CLASS__ , 'test_button' ) );
 	}
 
 
@@ -75,15 +72,6 @@ class Admin_Screen_Search {
 		load_plugin_textdomain( $text_domain, false, $plugin_rel_path );
 	}
 
-	/**
-	 * Add link to fire Indexing Script for Development
-	 * located at bottom of Admin Menu (in Sidebar)
-	 *
-	 * @todo Remove this before Production
-	 */
-	static function test_button() {
-		echo "<a href='#' id='admin-search-test-button' style='font-weight:bold;' >Test Admin Search</a>";
-	}
 
 	/**
 	 * @param null|string meta key, if omitted all meta are returned
@@ -167,6 +155,28 @@ class Admin_Screen_Search {
 		register_post_type( 'search_index', $args );
 	}
 
+	/**
+	 * Check slugs of links in Admin Menu to see if they've changed.
+	 *
+	 * @action wp_ajax_check_screens
+	 */
+	static function check_screens() {
+		$new_slug_array = isset( $_POST['slugs'] ) ? $_POST['slugs'] : null;
+
+		if ( is_null( $new_slug_array ) ) {
+			$error = json_encode( "Slugs Error" );
+			echo $error;
+			exit();
+		}
+
+		$old_slug_array = get_option( 'admin_search_slugs' );
+		update_option( 'admin_search_slugs', $new_slug_array );
+		if ( ! ( $old_slug_array === $new_slug_array ) ) {
+			echo json_encode( 'updated' );
+		}
+		exit();
+	}
+
 
 	/**
 	 * Save Indexed Admin Screen as Post
@@ -224,7 +234,7 @@ class Admin_Screen_Search {
 			$post_ID = wp_insert_post( $new_post );
 		}
 
-		update_post_meta( $post_ID, 'search_admin_page', $path );
+		update_post_meta( $post_ID, 'admin_screen_search', $path );
 
 		self::sort_save_markup( $post_ID, $markup );
 
@@ -389,6 +399,19 @@ class Admin_Screen_Search {
 
 		exit();
 
+	}
+
+	static function uninstall() {
+		$tags = self::$tags;
+		$posts = get_posts( array( 'post_type' => 'search_index', 'posts_per_page' => -1 ) );
+		foreach ( $posts as $post ) {
+			foreach ( $tags as $tag ) {
+				delete_post_meta( $post->ID, $tag );
+			}
+			delete_post_meta( $post->ID, 'admin_screen_search' );
+			wp_delete_post( $post->ID );
+		}
+		delete_option( 'admin_search_slugs' );
 	}
 
 }
