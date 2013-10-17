@@ -160,9 +160,8 @@ class Admin_Screen_Search {
 	static function check_screens() {
 		$new_slug_array = isset( $_POST['slugs'] ) ? $_POST['slugs'] : null;
 		if ( is_null( $new_slug_array ) ) {
-			$error = json_encode( "Input Error" );
-			echo $error;
-			exit();
+			$error = "Slugs Error";
+			wp_send_json_error( $error );
 		}
 
 		$old_slug_array = get_option( 'admin_search_slugs' );
@@ -179,9 +178,9 @@ class Admin_Screen_Search {
 						wp_delete_post( $post->ID, true );
 					}
 				}
-			echo json_encode( 'updated' );
+			wp_send_json_success( 'updated' );
 		}
-		exit();
+		wp_send_json_success( 'finished' );
 	}
 
 
@@ -197,21 +196,18 @@ class Admin_Screen_Search {
 		$markup = isset( $_POST['markup'] ) ? $_POST['markup'] : null;
 
 		if ( is_null( $label ) ) {
-			$error = json_encode( "Label Error" );
-			echo $error;
-			exit();
+			$error = "Label Error";
+			wp_send_json_error( $error );
 		}
 
 		if ( is_null( $path ) ) {
-			$error = json_encode( "Path Error" );
-			echo $error;
-			exit();
+			$error = "Path Error";
+			wp_send_json_error( $error );
 		}
 
 		if ( is_null( $markup ) ) {
-			$error = json_encode( "Markup Error" );
-			echo $error;
-			exit();
+			$error = "Markup Error";
+			wp_send_json_error( $error );
 		}
 
 		$user_ID = get_current_user_id();
@@ -251,8 +247,6 @@ class Admin_Screen_Search {
 		update_post_meta( $post_ID, 'admin_screen_search_path', $path );
 
 		self::sort_save_markup( $post_ID, $markup );
-
-		exit();
 	}
 
 
@@ -260,7 +254,6 @@ class Admin_Screen_Search {
 	 * Sort the Markup by HTML tag, then save into postmeta
 	 *
 	 * @todo   Need to account for 'alt' and 'title' attributes
-	 * @todo   Eliminate errors thrown by loadHTML()
 	 * @todo   Combine preg_replaces
 	 *
 	 * @param  int     $post_ID  Post ID of Admin Screen
@@ -270,9 +263,8 @@ class Admin_Screen_Search {
 	static function sort_save_markup( $post_ID = null, $markup = null ) {
 
 		if ( is_null( $post_ID ) || is_null( $markup ) ){
-			$error = json_encode( "Error Saving Markup" );
-			echo $error;
-			exit();
+			$error = "Error Saving Markup";
+			wp_send_json_error( $error );
 		}
 
 		// I'm sure we can combine these preg_replaces
@@ -413,9 +405,7 @@ class Admin_Screen_Search {
 			}
 		}
 
-		echo json_encode( $response );
-
-		exit();
+		wp_send_json( $response );
 
 	}
 
