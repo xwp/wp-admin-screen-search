@@ -63,6 +63,17 @@
 	display: none;
 }
 
+#wpadminbar #admin-search-form .admin-search-autocomplete ul {
+	background: #fff;
+	border: 1px solid #ccc;
+	color: #333;
+}
+#wpadminbar #admin-search-form .admin-search-autocomplete li {
+	border-bottom: 1px solid #ccc;
+	float: none;
+	padding: 0 0 5px 10px;
+}
+
 /* Search Results Highlight Styles */
 
 #adminmenu

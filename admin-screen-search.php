@@ -118,7 +118,6 @@ class Admin_Screen_Search {
 			array(),
 			self::get_version()
 		);
-		wp_enqueue_script( 'jquery-ui-autocomplete' );
 		wp_enqueue_script(
 			'admin-search-script',
 			self::get_plugin_path_url( 'admin-search.js' ),
@@ -141,11 +140,9 @@ class Admin_Screen_Search {
 	static function create_search_index_post_type() {
 		$args = array(
 			'label'              => 'Search Index',
-			// leave 'public' to true for development
-			'public'             => true,
+			'public'             => false,
 			'publicly_queryable' => false,
-			// leave 'show_ui' to true for development
-			'show_ui'            => true,
+			'show_ui'            => false,
 			'hierarchical'       => false,
 			'supports'           => array(
 				'title',
@@ -331,17 +328,19 @@ class Admin_Screen_Search {
 
 		<form action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" method="get" class="admin-search-form" id="admin-search-form">
 			<input type="hidden" name="page" value="admin-search" />
-			<input name="s" type="search" class="admin-search-input" id="admin-search-input" value="<?php echo $search_value; ?>" placeholder="<?php echo $search_placeholder; ?>" />
+			<input type="search" class="admin-search-input" id="admin-search-input" value="<?php echo $search_value; ?>" placeholder="<?php echo $search_placeholder; ?>" />
 			<?php if ( $alternate_submit ) : ?>
 				<button type="submit" class="admin-search-submit"><span><?php echo $submit_value; ?></span></button>
 			<?php else : ?>
 				<input type="submit" class="admin-search-submit" value="<?php echo $submit_value; ?>" />
 			<?php endif; ?>
+			<div class="admin-search-autocomplete"><ul></ul></div>
 		</form>
 
 		<?php
 		return apply_filters( 'get_admin_search_form', ob_get_clean(), $args, $defaults );
 	}
+
 
 	/**
 	 *
@@ -400,6 +399,7 @@ class Admin_Screen_Search {
 		exit();
 
 	}
+
 
 	static function uninstall() {
 		$tags = self::$tags;
