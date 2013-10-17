@@ -14,8 +14,9 @@
 					url: screenIndexer.ajaxurl,
 					data: { action : 'admin_screen_search_autocomplete', term : term },
 					success: function( data ) {
+						$( '.admin-search-autocomplete ul' ).show().width( 'auto' );
 						menuResults( data );
-						$( '.admin-search-input' ).focusout( function() {
+						$( '.admin-bar-autocomplete ul' ).focusout( function() {
 							$( '.admin-search-autocomplete ul' ).animate({ opacity: 0, width: 0 }, 300 );
 						});
 					}
@@ -40,7 +41,7 @@
 			success: function( response ) {
 				if ( response ) {
 					indexAdminScreens();
-				}
+				};
 			}
 		});
 	}

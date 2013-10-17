@@ -142,7 +142,7 @@ class Admin_Screen_Search {
 			'label'              => 'Search Index',
 			'public'             => false,
 			'publicly_queryable' => false,
-			'show_ui'            => false,
+			'show_ui'            => true,
 			'hierarchical'       => false,
 			'supports'           => array(
 				'title',
@@ -159,7 +159,6 @@ class Admin_Screen_Search {
 	 */
 	static function check_screens() {
 		$new_slug_array = isset( $_POST['slugs'] ) ? $_POST['slugs'] : null;
-
 		if ( is_null( $new_slug_array ) ) {
 			$error = json_encode( "Slugs Error" );
 			echo $error;
@@ -169,6 +168,17 @@ class Admin_Screen_Search {
 		$old_slug_array = get_option( 'admin_search_slugs' );
 		update_option( 'admin_search_slugs', $new_slug_array );
 		if ( ! ( $old_slug_array === $new_slug_array ) ) {
+
+				$posts = get_posts( array( 'post_type' => 'search_index', 'posts_per_page' => -1 ) );
+				foreach ( $posts as $post ) {
+					if ( ! in_array( $post->post_title, $new_slug_array ) ){
+						$meta_values = get_post_meta( $post->ID );
+						foreach ( $meta_values as $value ) {
+							delete_post_meta( $post->ID, $value );
+						}
+						wp_delete_post( $post->ID, true );
+					}
+				}
 			echo json_encode( 'updated' );
 		}
 		exit();

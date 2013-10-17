@@ -67,6 +67,8 @@
 	background: #fff;
 	border: 1px solid #ccc;
 	color: #333;
+	max-height: 300px;
+	overflow-y: scroll;
 }
 #wpadminbar #admin-search-form .admin-search-autocomplete li {
 	border-bottom: 1px solid #ccc;
