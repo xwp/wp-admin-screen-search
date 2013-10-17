@@ -42,24 +42,39 @@
 				if ( response ) {
 					indexAdminScreens();
 				};
+			},
+			error: function( jqXHR, foo, bar ) {
+				console.log( jqXHR );
 			}
 		});
 	}
 
 	function indexAdminScreens() {
 		$( '#adminmenu li > a' ).each( function() {
+			var label = '';
+			if ( $( this ).hasClass( 'wp-has-submenu' ) ) {
+				label = $( '.wp-menu-name', this ).text();
+			} else {
+				label = $( this ).text();
+			}
 			$.get( $( this ).attr( 'href' ), function( data ) {
-				sendScreenMarkup( this.url, data );
+				sendScreenMarkup( label, this.url, data );
 			});
 		});
 	}
 
-	function sendScreenMarkup( path, markup ) {
+	function sendScreenMarkup( label, path, markup ) {
 		$.ajax({
 			type : 'post',
 			dataType : 'json',
 			url : screenIndexer.ajaxurl,
-			data : { action: 'update_search_index', path : path, markup : markup }
+			data : { action: 'update_search_index', label : label, path : path, markup : markup },
+			success: function( response ) {
+				console.log( response );
+			},
+			error: function( jqXHR, foo, bar ) {
+				console.log( jqXHR.responseText );
+			}
 		});
 	}
 

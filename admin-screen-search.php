@@ -160,7 +160,7 @@ class Admin_Screen_Search {
 	static function check_screens() {
 		$new_slug_array = isset( $_POST['slugs'] ) ? $_POST['slugs'] : null;
 		if ( is_null( $new_slug_array ) ) {
-			$error = json_encode( "Slugs Error" );
+			$error = json_encode( "Input Error" );
 			echo $error;
 			exit();
 		}
@@ -192,11 +192,17 @@ class Admin_Screen_Search {
 	 */
 	static function update_search_index() {
 
+		$label  = isset( $_POST['label'] )  ? $_POST['label']  : null;
 		$path   = isset( $_POST['path'] )   ? $_POST['path']   : null;
 		$markup = isset( $_POST['markup'] ) ? $_POST['markup'] : null;
 
+		if ( is_null( $label ) ) {
+			$error = json_encode( "Label Error" );
+			echo $error;
+			exit();
+		}
+
 		if ( is_null( $path ) ) {
-			$error = json_encode( "Path Error" );
 			echo $error;
 			exit();
 		}
@@ -225,7 +231,7 @@ class Admin_Screen_Search {
 		if ( ! empty( $post_ID ) ) {
 			$new_post = array(
 				'ID'          => $post_ID,
-				'post_title'  => $path,
+				'post_title'  => $label,
 				'post_status' => 'publish',
 				'post_author' => $user_ID,
 				'post_type'   => 'search_index',
@@ -233,7 +239,7 @@ class Admin_Screen_Search {
 			$post_ID = wp_update_post( $new_post );
 		} else {
 			$new_post = array(
-				'post_title'  => $path,
+				'post_title'  => $label,
 				'post_status' => 'publish',
 				'post_author' => $user_ID,
 				'post_type'   => 'search_index',
@@ -241,7 +247,7 @@ class Admin_Screen_Search {
 			$post_ID = wp_insert_post( $new_post );
 		}
 
-		update_post_meta( $post_ID, 'admin_screen_search', $path );
+		update_post_meta( $post_ID, 'admin_screen_search_path', $path );
 
 		self::sort_save_markup( $post_ID, $markup );
 
@@ -376,17 +382,18 @@ class Admin_Screen_Search {
 		// For each post, get all tags values saved in post meta and save to an array
 		$i = 0;
 		foreach ( $posts as $post ) {
-			$post_ID = $post->ID;
+			$post_ID   = $post->ID;
+			$post_path = get_post_meta( $post_id, 'admin_screen_search_path', true );
 			foreach ( self::$tags as $tag ) {
 				$post_meta = get_post_meta( $post_ID, $tag, true );
 				if ( is_array( $post_meta ) ) {
 					foreach ( $post_meta as $string ) {
-						$strings[$i]['slug'] = $post->post_title;
+						$strings[$i]['slug'] = $post_path;
 						$strings[$i]['tag'] = $tag;
 						$strings[$i]['string'] = $string;
 					}
 				} else {
-					$strings[$i]['slug'] = $post->post_title;
+					$strings[$i]['slug'] = $post_path;
 					$strings[$i]['tag'] = $tag;
 					$strings[$i]['string'] = $post_meta;
 				}
@@ -418,7 +425,7 @@ class Admin_Screen_Search {
 			foreach ( $tags as $tag ) {
 				delete_post_meta( $post->ID, $tag );
 			}
-			delete_post_meta( $post->ID, 'admin_screen_search' );
+			delete_post_meta( $post->ID, 'admin_screen_search_path' );
 			wp_delete_post( $post->ID );
 		}
 		delete_option( 'admin_search_slugs' );
