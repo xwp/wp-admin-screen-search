@@ -203,6 +203,7 @@ class Admin_Screen_Search {
 		}
 
 		if ( is_null( $path ) ) {
+			$error = json_encode( "Path Error" );
 			echo $error;
 			exit();
 		}
@@ -299,6 +300,7 @@ class Admin_Screen_Search {
 			update_post_meta( $post_ID, $tag, $content_array );
 		}
 		unset( $dom );
+
 	}
 
 
@@ -383,7 +385,7 @@ class Admin_Screen_Search {
 		$i = 0;
 		foreach ( $posts as $post ) {
 			$post_ID   = $post->ID;
-			$post_path = get_post_meta( $post_id, 'admin_screen_search_path', true );
+			$post_path = get_post_meta( $post_ID, 'admin_screen_search_path', true );
 			foreach ( self::$tags as $tag ) {
 				$post_meta = get_post_meta( $post_ID, $tag, true );
 				if ( is_array( $post_meta ) ) {

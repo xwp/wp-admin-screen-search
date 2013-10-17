@@ -14,11 +14,15 @@
 					url: screenIndexer.ajaxurl,
 					data: { action : 'admin_screen_search_autocomplete', term : term },
 					success: function( data ) {
+						console.log( data );
 						$( '.admin-search-autocomplete ul' ).show().width( 'auto' );
 						menuResults( data );
 						$( '.admin-bar-autocomplete ul' ).focusout( function() {
 							$( '.admin-search-autocomplete ul' ).animate({ opacity: 0, width: 0 }, 300 );
 						});
+					},
+					error: function( jqXHR, foo, bar ) {
+						console.log( jqXHR.responseText );
 					}
 				});
 			}
@@ -37,15 +41,7 @@
 			type : 'post',
 			dataType : 'json',
 			url : screenIndexer.ajaxurl,
-			data : { action: 'check_screens', slugs : slugArray },
-			success: function( response ) {
-				if ( response ) {
-					indexAdminScreens();
-				};
-			},
-			error: function( jqXHR, foo, bar ) {
-				console.log( jqXHR );
-			}
+			data : { action: 'check_screens', slugs : slugArray }
 		});
 	}
 
@@ -68,13 +64,7 @@
 			type : 'post',
 			dataType : 'json',
 			url : screenIndexer.ajaxurl,
-			data : { action: 'update_search_index', label : label, path : path, markup : markup },
-			success: function( response ) {
-				console.log( response );
-			},
-			error: function( jqXHR, foo, bar ) {
-				console.log( jqXHR.responseText );
-			}
+			data : { action: 'update_search_index', label : label, path : path, markup : markup }
 		});
 	}
 
