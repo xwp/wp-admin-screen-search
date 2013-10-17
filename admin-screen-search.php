@@ -149,7 +149,7 @@ class Admin_Screen_Search {
 				'author',
 			),
 		);
-		register_post_type( 'search_index', $args );
+		register_post_type( 'admin_search_index', $args );
 	}
 
 	/**
@@ -169,7 +169,7 @@ class Admin_Screen_Search {
 		update_option( 'admin_search_slugs', $new_slug_array );
 		if ( ! ( $old_slug_array === $new_slug_array ) ) {
 
-				$posts = get_posts( array( 'post_type' => 'search_index', 'posts_per_page' => -1 ) );
+				$posts = get_posts( array( 'post_type' => 'admin_search_index', 'posts_per_page' => -1 ) );
 				foreach ( $posts as $post ) {
 					if ( ! in_array( $post->post_title, $new_slug_array ) ){
 						$meta_values = get_post_meta( $post->ID );
@@ -220,7 +220,7 @@ class Admin_Screen_Search {
 		//check if post exists with user and meta key/value.
 		$args = array(
 			'author'     => $user_ID,
-			'post_type'  => 'search_index',
+			'post_type'  => 'admin_search_index',
 			's'          => $post_title,
 		);
 		$posts = get_posts( $args );
@@ -235,7 +235,7 @@ class Admin_Screen_Search {
 				'post_title'  => $label,
 				'post_status' => 'publish',
 				'post_author' => $user_ID,
-				'post_type'   => 'search_index',
+				'post_type'   => 'admin_search_index',
 			);
 			$post_ID = wp_update_post( $new_post );
 		} else {
@@ -243,7 +243,7 @@ class Admin_Screen_Search {
 				'post_title'  => $label,
 				'post_status' => 'publish',
 				'post_author' => $user_ID,
-				'post_type'   => 'search_index',
+				'post_type'   => 'admin_search_index',
 			);
 			$post_ID = wp_insert_post( $new_post );
 		}
@@ -375,7 +375,7 @@ class Admin_Screen_Search {
 
 		$args = array(
 			'author'         => $user_ID,
-			'post_type'      => 'search_index',
+			'post_type'      => 'admin_search_index',
 			'posts_per_page' => -1,
 		);
 		$posts = get_posts( $args );
@@ -422,7 +422,7 @@ class Admin_Screen_Search {
 
 	static function uninstall() {
 		$tags = self::$tags;
-		$posts = get_posts( array( 'post_type' => 'search_index', 'posts_per_page' => -1 ) );
+		$posts = get_posts( array( 'post_type' => 'admin_search_index', 'posts_per_page' => -1 ) );
 		foreach ( $posts as $post ) {
 			foreach ( $tags as $tag ) {
 				delete_post_meta( $post->ID, $tag );

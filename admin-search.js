@@ -14,15 +14,11 @@
 					url: screenIndexer.ajaxurl,
 					data: { action : 'admin_screen_search_autocomplete', term : term },
 					success: function( data ) {
-						console.log( data );
 						$( '.admin-search-autocomplete ul' ).show().width( 'auto' );
 						menuResults( data );
 						$( '.admin-bar-autocomplete ul' ).focusout( function() {
 							$( '.admin-search-autocomplete ul' ).animate({ opacity: 0, width: 0 }, 300 );
 						});
-					},
-					error: function( jqXHR, foo, bar ) {
-						console.log( jqXHR.responseText );
 					}
 				});
 			}
