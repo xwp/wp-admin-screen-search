@@ -128,7 +128,7 @@ class Admin_Screen_Search {
 		wp_localize_script(
 			'admin-search-script',
 			'screenIndexer', array(
-				'ajaxurl' => admin_url( 'admin-ajax.php'),
+					'ajaxurl' => admin_url( 'admin-ajax.php'),
 			)
 		);
 	}
@@ -136,6 +136,8 @@ class Admin_Screen_Search {
 
 	/**
 	 * Create Search Index Post Type
+	 *
+	 * @todo Disable "show_ui" before production
 	 */
 	static function create_search_index_post_type() {
 		$args = array(
@@ -212,8 +214,9 @@ class Admin_Screen_Search {
 
 		$user_ID = get_current_user_id();
 		$post_ID = '';
-		$post_title = wp_unslash( sanitize_post_field( 'post_title', $path, 0, 'db' ) );
-		//check if post exists with user and meta key/value.
+		$post_title = wp_unslash( sanitize_text_field( $path ) );
+
+		// Check if post exists by searching for matching post title
 		$args = array(
 			'author'     => $user_ID,
 			'post_type'  => 'admin_search_index',

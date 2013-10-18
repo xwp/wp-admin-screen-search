@@ -78,35 +78,38 @@
 
 /* Search Results Highlight Styles */
 
-#adminmenu
+#adminmenu .admin-search-result,
+#adminmenu .wp-submenu .admin-search-result {
+	color: #333;
+}
 
 #adminmenu .admin-search-result.h1,
 #adminmenu .admin-search-result.h2,
 #adminmenu .admin-search-result.h3 {
-	color: #cc0000;
+	background: #ca6314;
 }
 
 #adminmenu .admin-search-result.h4,
 #adminmenu .admin-search-result.h5,
 #adminmenu .admin-search-result.h6 {
-	color: #c62b2b
+	background: #d96a16;
 }
 
 #adminmenu .admin-search-result.th,
 #adminmenu .admin-search-result.label {
-	color: #c25151;
+	background: #e67017;
 }
 
 #adminmenu .admin-search-result.td,
 #adminmenu .admin-search-result.a,
 #adminmenu .admin-search-result.strong,
 #adminmenu .admin-search-result.em {
-	color: #c46363;
+	background: #ea7a25;
 }
 
 #adminmenu .admin-search-result.p,
 #adminmenu .admin-search-result.span {
-	color: #c27979;
+	background: #ec8537;
 }
 
 

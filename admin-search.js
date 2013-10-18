@@ -70,7 +70,7 @@
 	function menuResults( data ) {
 		$( '#adminmenu li.wp-has-submenu' ).removeClass( 'opensub' );
 		$( '#adminmenu a' ).removeClass( 'admin-search-result h1 h2 h3 h4 h5 h6 th label td a strong em p span' );
-		//$( '.admin-search-autocomplete ul' ).html( '' );
+		$( '.admin-search-autocomplete ul' ).html( '' );
 
 		$.each( data, function( slug, array ) {
 			var menuLink = $( '#adminmenu a[href$="' + slug + '"]' )
