@@ -47,6 +47,7 @@ class Admin_Screen_Search {
 		'a',
 		'strong',
 		'em',
+		'div',
 		'p',
 		'span'
 	);
@@ -214,7 +215,8 @@ class Admin_Screen_Search {
 
 		$user_ID = get_current_user_id();
 		$post_ID = '';
-		$post_title = wp_unslash( sanitize_text_field( $path ) );
+		$post_title = wp_unslash( sanitize_text_field( $label ) );
+		$path = wp_unslash( sanitize_text_field( $path ) );
 
 		// Check if post exists by searching for matching post title
 		$args = array(
@@ -250,6 +252,7 @@ class Admin_Screen_Search {
 		update_post_meta( $post_ID, 'admin_screen_search_path', $path );
 
 		self::sort_save_markup( $post_ID, $markup );
+
 	}
 
 
@@ -385,14 +388,18 @@ class Admin_Screen_Search {
 				$post_meta = get_post_meta( $post_ID, $tag, true );
 				if ( is_array( $post_meta ) ) {
 					foreach ( $post_meta as $string ) {
-						$strings[$i]['slug'] = $post_path;
-						$strings[$i]['tag'] = $tag;
+						$strings[$i]['slug']   = $post_path;
+						$strings[$i]['tag']    = $tag;
 						$strings[$i]['string'] = $string;
+						$delimiter             = strpos( $post_path, '?' ) ? '&' : '?';
+						$strings[$i]['url']    = $post_path . $delimiter. 'admin_search=' . $string;
 					}
 				} else {
-					$strings[$i]['slug'] = $post_path;
-					$strings[$i]['tag'] = $tag;
+					$strings[$i]['slug']   = $post_path;
+					$strings[$i]['tag']    = $tag;
 					$strings[$i]['string'] = $post_meta;
+					$delimiter             = strpos( $post_path, '?' ) ? '&' : '?';
+					$strings[$i]['url']    = $post_path . $delimiter. 'admin_search=' . $string;
 				}
 				$i++;
 			}
@@ -402,9 +409,10 @@ class Admin_Screen_Search {
 		$response = array();
 		foreach ( $strings as $string ) {
 			if ( strpos( $string['string'], $term ) !== false ) {
-				$slug = $string['slug'];
-				$response[$slug]['tag'] = $string['tag'];
+				$slug                      = $string['slug'];
+				$response[$slug]['tag']    = $string['tag'];
 				$response[$slug]['string'] = $string['string'];
+				$response[$slug]['url']    = $string['url'];
 			}
 		}
 

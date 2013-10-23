@@ -14,7 +14,7 @@
 					url: screenIndexer.ajaxurl,
 					data: { action : 'admin_screen_search_autocomplete', term : term },
 					success: function( data ) {
-						$( '.admin-search-autocomplete ul' ).show().width( 'auto' );
+						$( '.admin-search-autocomplete ul' ).show().width( 'auto' ).addClass( 'open' );
 						menuResults( data );
 						$( '.admin-bar-autocomplete ul' ).focusout( function() {
 							$( '.admin-search-autocomplete ul' ).animate({ opacity: 0, width: 0 }, 300 );
@@ -24,6 +24,8 @@
 			}
 			var lastentry = term;
 		});
+
+		highlight();
 
 	});
 
@@ -73,15 +75,15 @@
 		$( '.admin-search-autocomplete ul' ).html( '' );
 
 		$.each( data, function( slug, array ) {
-			var menuLink = $( '#adminmenu a[href$="' + slug + '"]' )
+			var menuLink = $( '#adminmenu a[href$="' + slug + '"]' ).last();
 			var linkTitle = $( menuLink ).text();
 			menuLink.addClass( 'admin-search-result ' + array.tag );
 			if ( menuLink.parents( 'li.wp-has-submenu' ).length ) {
 				var parentLi = menuLink.parents( 'li.wp-has-submenu' );
 				var parentLink = $( ' > a .wp-menu-name', parentLi ).text();
-				$( '.admin-search-autocomplete ul' ).append( '<li><a href="' + slug + '">' + parentLink + '  >  '+ linkTitle + '</a></li>' );
+				$( '.admin-search-autocomplete ul' ).append( '<li><a href="' + array.url + '">' + parentLink + '  >  '+ linkTitle + '</a></li>' );
 			} else {
-				$( '.admin-search-autocomplete ul' ).append( '<li><a href="' + slug + '">' + linkTitle + '</a></li>' );
+				$( '.admin-search-autocomplete ul' ).append( '<li><a href="' + array.url + '">' + linkTitle + '</a></li>' );
 			}
 		});
 
@@ -102,6 +104,30 @@
 			$( this ).css({'opacity': '1', 'z-index': 1000 });
 			//Need to override hoverIntent.out.
 		});
+	}
+
+	function getParameterByName( name ) {
+		var href = window.location.href;
+		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+		var regexS = "[\\?&]"+name+"=([^&#]*)";
+		var regex = new RegExp( regexS );
+		var results = regex.exec( href );
+		if( results == null ) {
+			return "";
+		} else {
+			return decodeURIComponent(results[1].replace(/\+/g, " "));
+		}
+	}
+
+	function highlight() {
+		if( getParameterByName( 'admin_search' ) != '' ) {
+			var string = getParameterByName( 'admin_search' );
+			console.log ( string );
+			$("*:contains('" + string + "')" ).each(function(){
+				 if ( $( this ).children().length < 1 )
+					$( this ).wrapInner( '<span class="highlighted"></span>' );
+			});
+		}
 	}
 
 }( jQuery ) );
