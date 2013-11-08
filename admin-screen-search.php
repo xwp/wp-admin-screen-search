@@ -27,21 +27,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * @todo ignore hoverIntent's out callback while text is in search input.
  */
 
 
 class Admin_Screen_Search {
 
-	private static $tags = array(
+	public static $tags = array(
 		'h1',
 		'h2',
 		'h3',
 		'h4',
 		'h5',
 		'h6',
-		'th',
+		// 'th', // Exclude table headers
 		'label',
 		'td',
 		'a',
@@ -60,7 +58,7 @@ class Admin_Screen_Search {
 		add_action( 'wp_ajax_update_search_index', array( __CLASS__ , 'update_search_index' ) );
 		add_action( 'wp_ajax_admin_screen_search_autocomplete', array( __CLASS__ , 'admin_screen_search_autocomplete' ) );
 		add_action( 'wp_ajax_check_screens', array( __CLASS__ , 'check_screens' ) );
-		add_action( 'admin_bar_menu', array( __CLASS__ , 'admin_bar_search' ) );
+		add_action( 'omnisearch_add_providers', array( __CLASS__, 'integrate_with_omnisearch' ) );
 	}
 
 
@@ -142,7 +140,11 @@ class Admin_Screen_Search {
 	 */
 	static function create_search_index_post_type() {
 		$args = array(
-			'label'              => 'Search Index',
+			'label'              => 'Admin Screens',
+			'labels'             => array(
+				'singluar_name'  => 'Admin Screen',
+				'view_item'      => 'View Screen',
+			),
 			'public'             => false,
 			'publicly_queryable' => false,
 			'show_ui'            => true,
@@ -213,10 +215,10 @@ class Admin_Screen_Search {
 			wp_send_json_error( $error );
 		}
 
-		$user_ID = get_current_user_id();
-		$post_ID = '';
+		$user_ID    = get_current_user_id();
+		$post_ID    = '';
 		$post_title = wp_unslash( sanitize_text_field( $label ) );
-		$path = wp_unslash( sanitize_text_field( $path ) );
+		$path       = wp_unslash( sanitize_text_field( $path ) );
 
 		// Check if post exists by searching for matching post title
 		$args = array(
@@ -261,10 +263,10 @@ class Admin_Screen_Search {
 	 *
 	 * @todo   Need to account for 'alt' and 'title' attributes
 	 * @todo   Combine preg_replaces
+	 * @todo   Remove irrelevant elements from DOM (like Contextual Help, below)
 	 *
 	 * @param  int     $post_ID  Post ID of Admin Screen
 	 * @param  string  $markup   HTML of current Admin Screen
-	 * @param  array   $tags     List of HTML tags
 	 */
 	static function sort_save_markup( $post_ID = null, $markup = null ) {
 
@@ -289,135 +291,41 @@ class Admin_Screen_Search {
 		$dom = new DOMDocument();
 		$dom->loadHTML( $markup );
 
-		foreach ( self::$tags as $tag ) {
-			$content_array = array();
-			$elements = $dom->getElementsByTagName( $tag );
-			foreach ( $elements as $element ) {
-				$content_array[] = $element->nodeValue;
-			}
-			update_post_meta( $post_ID, $tag, $content_array );
+		// Only search #wpbody
+		$body = $dom->getElementById( 'wpbody' );
+
+		// exclude contextual help
+		$help = $dom->getElementById( 'screen-meta' );
+		if ( isset( $help ) ) {
+			$help->parentNode->removeChild( $help );
 		}
+
+		if ( isset( $body ) ) {
+			foreach ( self::$tags as $tag ) {
+				$content_array = array();
+				$elements = $body->getElementsByTagName( $tag );
+				foreach ( $elements as $element ) {
+					$content_array[] = $element->nodeValue;
+				}
+				update_post_meta( $post_ID, $tag, $content_array );
+			}
+		}
+
 		unset( $dom );
 
 	}
 
-
 	/**
-	 * Add Search Form to Admin Bar
 	 *
-	 * (Adapted from Jetpack's Omnisearch)
+	 *
+	 * @action omnisearch_add_providers
 	 */
-	static function admin_bar_search( $wp_admin_bar ) {
-		if( ! is_admin() )
+	static function integrate_with_omnisearch() {
+		if ( ! is_plugin_active( 'jetpack/jetpack.php' ) )
 			return;
 
-		$form = self::get_admin_search_form();
-
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'top-secondary',
-			'id'     => 'admin-search',
-			'title'  => $form,
-			'meta'   => array(
-				'class'    => 'admin-bar-search',
-				'tabindex' => -1,
-			)
-		) );
-	}
-
-
-	/**
-	 * Creates Admin Search form
-	 *
-	 * (Adapted from Jetpack's Omnisearch)
-	 */
-	static function get_admin_search_form( $args = array() ) {
-		$defaults = array(
-			'search_value'       => isset( $_REQUEST['s'] ) ? $_REQUEST['s'] : null,
-			'search_placeholder' => __( 'Search Admin', 'admin-search' ),
-			'submit_value'       => __( 'Search', 'admin-search' ),
-			'alternate_submit'   => false,
-		);
-		extract( array_map( 'esc_attr', wp_parse_args( $args, $defaults ) ) );
-
-		ob_start();
-		?>
-
-		<form action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" method="get" class="admin-search-form" id="admin-search-form">
-			<input type="hidden" name="page" value="admin-search" />
-			<input type="search" class="admin-search-input" id="admin-search-input" value="<?php echo $search_value; ?>" placeholder="<?php echo $search_placeholder; ?>" />
-			<?php if ( $alternate_submit ) : ?>
-				<button type="submit" class="admin-search-submit"><span><?php echo $submit_value; ?></span></button>
-			<?php else : ?>
-				<input type="submit" class="admin-search-submit" value="<?php echo $submit_value; ?>" />
-			<?php endif; ?>
-			<div class="admin-search-autocomplete"><ul></ul></div>
-		</form>
-
-		<?php
-		return apply_filters( 'get_admin_search_form', ob_get_clean(), $args, $defaults );
-	}
-
-
-	/**
-	 *
-	 *
-	 *
-	 * @action admin_screen_search_autocomplete
-	 */
-
-	static function admin_screen_search_autocomplete() {
-
-		$term = isset( $_POST['term'] ) ? $_POST['term'] : '' ;
-
-		$user_ID = get_current_user_id();
-
-		$args = array(
-			'author'         => $user_ID,
-			'post_type'      => 'admin_search_index',
-			'posts_per_page' => -1,
-		);
-		$posts = get_posts( $args );
-
-		$strings = array();
-		// For each post, get all tags values saved in post meta and save to an array
-		$i = 0;
-		foreach ( $posts as $post ) {
-			$post_ID   = $post->ID;
-			$post_path = get_post_meta( $post_ID, 'admin_screen_search_path', true );
-			foreach ( self::$tags as $tag ) {
-				$post_meta = get_post_meta( $post_ID, $tag, true );
-				if ( is_array( $post_meta ) ) {
-					foreach ( $post_meta as $string ) {
-						$strings[$i]['slug']   = $post_path;
-						$strings[$i]['tag']    = $tag;
-						$strings[$i]['string'] = $string;
-						$delimiter             = strpos( $post_path, '?' ) ? '&' : '?';
-						$strings[$i]['url']    = $post_path . $delimiter. 'admin_search=' . $string;
-					}
-				} else {
-					$strings[$i]['slug']   = $post_path;
-					$strings[$i]['tag']    = $tag;
-					$strings[$i]['string'] = $post_meta;
-					$delimiter             = strpos( $post_path, '?' ) ? '&' : '?';
-					$strings[$i]['url']    = $post_path . $delimiter. 'admin_search=' . $string;
-				}
-				$i++;
-			}
-		}
-
-		// Assemble the Response
-		$response = array();
-		foreach ( $strings as $string ) {
-			if ( strpos( $string['string'], $term ) !== false ) {
-				$slug                      = $string['slug'];
-				$response[$slug]['tag']    = $string['tag'];
-				$response[$slug]['string'] = $string['string'];
-				$response[$slug]['url']    = $string['url'];
-			}
-		}
-
-		wp_send_json( $response );
-
+		require_once( plugin_dir_path(__FILE__) . '/extend-omnisearch.php' );
+		new WP_Admin_Search_Extend_Omnisearch( 'admin_search_index' );
 	}
 
 
