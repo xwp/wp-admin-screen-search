@@ -4,20 +4,20 @@
  * @todo Limit number of results
  */
 
-if( ! class_exists( 'WP_List_Table' ) )
+if ( ! class_exists( 'WP_List_Table' ) )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 class WP_Admin_Search_Extend_Omnisearch extends WP_List_Table {
 	var $post_type = 'post',
-	    $post_type_object;
+		$post_type_object;
 
 	function __construct( $post_type = 'post' ) {
 		$this->post_type = $post_type;
-		add_filter( 'omnisearch_results', array( $this, 'search'), 10, 2 );
+		add_filter( 'omnisearch_results', array( $this, 'search' ), 10, 2 );
 	}
 
 	function search( $results, $search_term ) {
-		if( ! post_type_exists( $this->post_type ) )
+		if ( ! post_type_exists( $this->post_type ) )
 			return $results;
 
 		parent::__construct();
@@ -26,7 +26,8 @@ class WP_Admin_Search_Extend_Omnisearch extends WP_List_Table {
 
 		$html = '<h2>' . esc_html( $this->post_type_obj->labels->name ) . '</h2>';
 
-		$this->posts = get_posts( array(
+		$this->posts = get_posts(
+			array(
 				'post_type'      => $this->post_type,
 				'posts_per_page' => -1,
 				'post_status'    => 'any',
@@ -50,9 +51,9 @@ class WP_Admin_Search_Extend_Omnisearch extends WP_List_Table {
 	function get_columns() {
 		$columns = array(
 		#	'id' => __('ID', 'admin-search'),
-			'post_title' => __('Title', 'admin-search'),
-			'snippet' => __('Matches', 'admin-search'),
-			'date' => __(''),
+			'post_title' => __( 'Title', 'admin-search' ),
+			'snippet' => __( 'Matches', 'admin-search' ),
+			'date' => __( '' ),
 		);
 		return $columns;
 	}
@@ -83,8 +84,8 @@ class WP_Admin_Search_Extend_Omnisearch extends WP_List_Table {
 			case 'snippet':
 				return $post->admin_search_strings;
 			case 'date': // Will never happen, class method overrides.
-				$d = get_option('date_format');
-				$t = get_option('time_format');
+				$d = get_option( 'date_format' );
+				$t = get_option( 'time_format' );
 				return get_post_modified_time( $d, 0, $post, 1 ) . ' @ ' . get_post_modified_time( $t, 0, $post, 1 );
 			default:
 				return print_r( $post, true );

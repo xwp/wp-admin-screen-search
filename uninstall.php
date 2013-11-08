@@ -8,10 +8,10 @@
  */
 
 // If uninstall not called from WordPress, exit
-if ( !defined( 'WP_UNINSTALL_PLUGIN' ) )
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) )
 	exit();
 
 // Include main functions file so we have access to Admin_Screen_Search class
 include_once( 'admin-screen-search.php' );
 
- Admin_Screen_Search::uninstall();
+Admin_Screen_Search::uninstall();

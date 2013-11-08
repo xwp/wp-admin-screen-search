@@ -48,17 +48,17 @@ class Admin_Screen_Search {
 		'em',
 		'div',
 		'p',
-		'span'
+		'span',
 	);
 
 
 	static function setup() {
 		self::load_textdomain();
-		add_action( 'admin_init', array( __CLASS__ , 'enqueue_scripts' ) );
-		add_action( 'init', array( __CLASS__ , 'create_search_index_post_type' ) );
-		add_action( 'wp_ajax_update_search_index', array( __CLASS__ , 'update_search_index' ) );
-		add_action( 'wp_ajax_admin_screen_search_autocomplete', array( __CLASS__ , 'admin_screen_search_autocomplete' ) );
-		add_action( 'wp_ajax_check_screens', array( __CLASS__ , 'check_screens' ) );
+		add_action( 'admin_init', array( __CLASS__, 'enqueue_scripts' ) );
+		add_action( 'init', array( __CLASS__, 'create_search_index_post_type' ) );
+		add_action( 'wp_ajax_update_search_index', array( __CLASS__, 'update_search_index' ) );
+		add_action( 'wp_ajax_admin_screen_search_autocomplete', array( __CLASS__, 'admin_screen_search_autocomplete' ) );
+		add_action( 'wp_ajax_check_screens', array( __CLASS__, 'check_screens' ) );
 		add_action( 'omnisearch_add_providers', array( __CLASS__, 'integrate_with_omnisearch' ) );
 	}
 
@@ -113,6 +113,7 @@ class Admin_Screen_Search {
 		}
 	}
 
+
 	/**
 	 * Enqueue Scripts
 	 *
@@ -135,7 +136,7 @@ class Admin_Screen_Search {
 		wp_localize_script(
 			'admin-search-script',
 			'screenIndexer', array(
-					'ajaxurl' => admin_url( 'admin-ajax.php'),
+					'ajaxurl' => admin_url( 'admin-ajax.php' ),
 			)
 		);
 	}
@@ -174,7 +175,7 @@ class Admin_Screen_Search {
 	static function check_screens() {
 		$new_slug_array = isset( $_POST['slugs'] ) ? $_POST['slugs'] : null;
 		if ( is_null( $new_slug_array ) ) {
-			$error = "Slugs Error";
+			$error = 'Slugs Error';
 			wp_send_json_error( $error );
 		}
 
@@ -182,11 +183,11 @@ class Admin_Screen_Search {
 		update_option( 'admin_search_slugs', $new_slug_array );
 		if ( ! ( $old_slug_array === $new_slug_array ) ) {
 
-				$posts = get_posts( array( 'post_type' => 'admin_search_index', 'posts_per_page' => -1 ) );
-				foreach ( $posts as $post ) {
-					if ( ! in_array( $post->post_title, $new_slug_array ) ){
-						$meta_values = get_post_meta( $post->ID );
-						foreach ( $meta_values as $value ) {
+			$posts = get_posts( array( 'post_type' => 'admin_search_index', 'posts_per_page' => -1 ) );
+			foreach ( $posts as $post ) {
+				if ( ! in_array( $post->post_title, $new_slug_array ) ) {
+					$meta_values = get_post_meta( $post->ID );
+					foreach ( $meta_values as $value ) {
 							delete_post_meta( $post->ID, $value );
 						}
 						wp_delete_post( $post->ID, true );
@@ -211,17 +212,17 @@ class Admin_Screen_Search {
 		$markup = isset( $_POST['markup'] ) ? $_POST['markup'] : null;
 
 		if ( is_null( $label ) ) {
-			$error = "Label Error";
+			$error = 'Label Error';
 			wp_send_json_error( $error );
 		}
 
 		if ( is_null( $path ) ) {
-			$error = "Path Error";
+			$error = 'Path Error';
 			wp_send_json_error( $error );
 		}
 
 		if ( is_null( $markup ) ) {
-			$error = "Markup Error";
+			$error = 'Markup Error';
 			wp_send_json_error( $error );
 		}
 
@@ -281,7 +282,7 @@ class Admin_Screen_Search {
 	static function sort_save_markup( $post_ID = null, $markup = null ) {
 
 		if ( is_null( $post_ID ) || is_null( $markup ) ){
-			$error = "Error Saving Markup";
+			$error = 'Error Saving Markup';
 			wp_send_json_error( $error );
 		}
 
@@ -320,9 +321,7 @@ class Admin_Screen_Search {
 				update_post_meta( $post_ID, $tag, $content_array );
 			}
 		}
-
 		unset( $dom );
-
 	}
 
 
@@ -335,7 +334,7 @@ class Admin_Screen_Search {
 		if ( ! is_plugin_active( 'jetpack/jetpack.php' ) )
 			return;
 
-		require_once( plugin_dir_path(__FILE__) . '/extend-omnisearch.php' );
+		require_once( plugin_dir_path( __FILE__ ) . '/extend-omnisearch.php' );
 		new WP_Admin_Search_Extend_Omnisearch( 'admin_search_index' );
 	}
 
@@ -350,7 +349,7 @@ class Admin_Screen_Search {
 	 * @param  array   Array of Posts created via get_posts.
 	 * @return array   Array of Posts matching the search terms.
 	 */
-	public static function scan_posts( $search_term, $posts ) {
+	public static function scan_posts( $search_term, $posts ){
 		$search_term = strtolower( $search_term );
 		$admin_pages = array();
 		foreach ( $posts as $post ) {
@@ -427,8 +426,9 @@ class Admin_Screen_Search {
 		$i = 0;
 		ob_start();
 			echo '<ul>';
-				foreach( $array as $value ) if ( $i++ < 5) {
-					echo '<li>' . $value . '</li>';
+				foreach ( $array as $value ) {
+					if ( $i++ < 5 ) {
+						echo '<li>' . $value . '</li>';
 				}
 			echo '</ul>';
 		return ob_get_clean();
@@ -439,7 +439,7 @@ class Admin_Screen_Search {
 	 * Remove all plugin data
 	 */
 	static function uninstall() {
-		$tags = self::$tags;
+		$tags  = self::$tags;
 		$posts = get_posts( array( 'post_type' => 'admin_search_index', 'posts_per_page' => -1 ) );
 		foreach ( $posts as $post ) {
 			foreach ( $tags as $tag ) {
