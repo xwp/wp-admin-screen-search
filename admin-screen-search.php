@@ -281,7 +281,7 @@ class Admin_Screen_Search {
 	 */
 	static function sort_save_markup( $post_ID = null, $markup = null ) {
 
-		if ( is_null( $post_ID ) || is_null( $markup ) ){
+		if ( is_null( $post_ID ) || is_null( $markup ) ) {
 			$error = 'Error Saving Markup';
 			wp_send_json_error( $error );
 		}
@@ -425,12 +425,13 @@ class Admin_Screen_Search {
 	public static function format_array( $array ) {
 		$i = 0;
 		ob_start();
-			echo '<ul>';
-				foreach ( $array as $value ) {
-					if ( $i++ < 5 ) {
-						echo '<li>' . $value . '</li>';
-				}
-			echo '</ul>';
+		echo '<ul>';
+		foreach ( $array as $value ) {
+			if ( $i++ < 5 ) {
+				echo '<li>' . $value . '</li>';
+			}
+		}
+		echo '</ul>';
 		return ob_get_clean();
 	}
 
@@ -438,7 +439,7 @@ class Admin_Screen_Search {
 	/**
 	 * Remove all plugin data
 	 */
-	static function uninstall() {
+	public static function uninstall() {
 		$tags  = self::$tags;
 		$posts = get_posts( array( 'post_type' => 'admin_search_index', 'posts_per_page' => -1 ) );
 		foreach ( $posts as $post ) {
