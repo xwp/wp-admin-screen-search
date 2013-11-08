@@ -32,6 +32,7 @@
 
 class Admin_Screen_Search {
 
+
 	public static $tags = array(
 		'h1',
 		'h2',
@@ -98,6 +99,9 @@ class Admin_Screen_Search {
 	/**
 	 * Gets Plugin URL from a path
 	 * Not using plugin_dir_url because it is not symlink-friendly
+	 *
+	 * @param  string  URL Path
+	 * @return string  New URL
 	 */
 	static function get_plugin_path_url( $path = null ) {
 		$plugin_dirname = basename( dirname( __FILE__ ) );
@@ -109,7 +113,11 @@ class Admin_Screen_Search {
 		}
 	}
 
-
+	/**
+	 * Enqueue Scripts
+	 *
+	 * @uses get_plugin_path_url
+	 */
 	static function enqueue_scripts(){
 		wp_enqueue_style(
 			'admin-search-style',
@@ -157,6 +165,7 @@ class Admin_Screen_Search {
 		register_post_type( 'admin_search_index', $args );
 	}
 
+
 	/**
 	 * Check slugs of links in Admin Menu to see if they've changed.
 	 *
@@ -193,6 +202,7 @@ class Admin_Screen_Search {
 	 * Save Indexed Admin Screen as Post
 	 *
 	 * @action wp_ajax_update_search_index
+	 * @uses sort_save_markup
 	 */
 	static function update_search_index() {
 
@@ -315,8 +325,9 @@ class Admin_Screen_Search {
 
 	}
 
+
 	/**
-	 *
+	 * Connect Admin Screens with Omnisearch
 	 *
 	 * @action omnisearch_add_providers
 	 */
@@ -329,6 +340,104 @@ class Admin_Screen_Search {
 	}
 
 
+	/**
+	 * Load pages whose content matches the search terms
+	 *
+	 * Scan through each search_index post's postmeta, if it finds a match with the
+	 * search terms, return the post object into the $admin_pages array.
+	 *
+	 * @param  string  Search term.
+	 * @param  array   Array of Posts created via get_posts.
+	 * @return array   Array of Posts matching the search terms.
+	 */
+	public static function scan_posts( $search_term, $posts ) {
+		$search_term = strtolower( $search_term );
+		$admin_pages = array();
+		foreach ( $posts as $post ) {
+			foreach ( Admin_Screen_Search::$tags as $tag ) {
+				$post_meta = get_post_meta( $post->ID, $tag, true );
+				if ( is_array( $post_meta ) ) {
+					foreach ( $post_meta as $string ) {
+						$string = strtolower( $string );
+						if ( is_numeric( strpos( $string, $search_term ) ) ) {
+							$admin_pages[] = $post;
+							break 2;
+						}
+					}
+				} else {
+					$post_meta = strtolower( $post_meta );
+					if ( is_numeric( strpos( $post_meta, $search_term ) ) ) {
+						$admin_pages[] = $post;
+						break;
+					}
+				}
+			}
+		}
+		return $admin_pages;
+	}
+
+
+	/**
+	 * Loads Post objects with an array of strings that match search terms.
+	 *
+	 * Scan through each search_index post's postmeta, if it finds a match with the
+	 * search terms, add the found string to an array that will be added to the post object.
+	 *
+	 * @uses   format_array
+	 * @param  string  Search term.
+	 * @param  array   Array of Posts.
+	 * @return array   Array of Posts with new object property "admin_search_strings".
+	 */
+	public static function gather_matches( $search_term, $posts ) {
+		$search_term = strtolower( $search_term );
+		$admin_pages = array();
+		foreach ( $posts as $post ) {
+			$strings = array();
+			foreach ( self::$tags as $tag ) {
+				$post_meta = get_post_meta( $post->ID, $tag, true );
+				if ( is_array( $post_meta ) ) {
+					foreach ( $post_meta as $string ) {
+						$lower_string = strtolower( $string );
+						if ( is_numeric( strpos( $lower_string, $search_term ) ) ) {
+							$strings[] = wp_trim_words( $string, 20 );
+						}
+					}
+				} else {
+					$lower_meta = strtolower( $post_meta );
+					if ( is_numeric( strpos( $lower_meta, $search_term ) ) ) {
+						$strings[] = wp_trim_words( $string, 20 );
+					}
+				}
+			}
+			$post->admin_search_strings = $this->format_array( $strings );
+		}
+		return $posts;
+	}
+
+
+	/**
+	 * Convert array to unordered list.
+	 *
+	 * Limit list items to first five matches.
+	 *
+	 * @param  array   Array of Posts.
+	 * @return string  Formatted Unordered List.
+	 */
+	public static function format_array( $array ) {
+		$i = 0;
+		ob_start();
+			echo '<ul>';
+				foreach( $array as $value ) if ( $i++ < 5) {
+					echo '<li>' . $value . '</li>';
+				}
+			echo '</ul>';
+		return ob_get_clean();
+	}
+
+
+	/**
+	 * Remove all plugin data
+	 */
 	static function uninstall() {
 		$tags = self::$tags;
 		$posts = get_posts( array( 'post_type' => 'admin_search_index', 'posts_per_page' => -1 ) );
