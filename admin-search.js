@@ -12,9 +12,7 @@
 		// Highlights search string on resulting page using URL parameter
 		highlight();
 
-		// Checks to see if Admin Menu has changed.
-		checkScreens();
-
+		// todo  Need to empty results UL when search input is emptied
 		$( '#adminbar-search' ).keyup( function( event ){
 			var term = $( '#adminbar-search' ).val();
 			console.log( term );
@@ -38,6 +36,9 @@
 			}
 			var lastentry = term;
 		});
+
+		// Checks to see if Admin Menu has changed.
+		checkScreens();
 
 	});
 
