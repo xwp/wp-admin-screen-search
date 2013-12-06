@@ -19,10 +19,9 @@
 					dataType: 'json',
 					url: screenIndexer.ajaxurl,
 					data: { action : 'admin_screen_search_autocomplete', term : term },
-					success: function( response ) {
-						console.log( response );
+					success: function( data ) {
 						$( '.admin-search-autocomplete ul' ).show().width( 'auto' ).addClass( 'open' );
-						menuResults( response );
+						menuResults( data );
 						$( '.admin-bar-autocomplete ul' ).focusout( function() {
 							$( '.admin-search-autocomplete ul' ).animate({ opacity: 0, width: 0 }, 300 );
 						});
@@ -151,13 +150,15 @@
 		}
 	}
 
+	// todo  Needs to account for strings with inline html elements inside,
+	//       like "This is <strong>a string</strong>."
 	function highlight() {
 		if( getParameterByName( 'admin_search' ) != '' ) {
 			var string = getParameterByName( 'admin_search' );
-			console.log ( string );
 			$("*:contains('" + string + "')" ).each(function(){
-				 if ( $( this ).children().length < 1 )
+				if ( $( this ).children().length < 1 ) {
 					$( this ).wrapInner( '<span class="highlighted"></span>' );
+				}
 			});
 		}
 	}
