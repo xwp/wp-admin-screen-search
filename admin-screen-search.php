@@ -346,6 +346,9 @@ class Admin_Screen_Search {
 	static function admin_screen_search_autocomplete() {
 
 		$term = isset( $_POST['term'] ) ? $_POST['term'] : '' ;
+		if ( empty( $term ) ) {
+			wp_send_json_error( "No Term Found" );
+		}
 
 		$user_ID = get_current_user_id();
 

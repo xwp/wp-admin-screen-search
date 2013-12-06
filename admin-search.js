@@ -1,26 +1,34 @@
 ( function ($) {
 
+	// Insert Progress Bar
+	$( '#wpadminbar' ).prepend( '<div id="admin-search-progress-bar"><div></div></div>' );
+	$( '#adminbarsearch' ).append( '<div class="admin-search-autocomplete"><ul></ul></div>' );
+	$( '#adminbar-search' ).attr('autocomplete', 'off');
+
 	$( document ).ready( function() {
 
 		// Checks to see if Admin Menu has changed.
 		checkScreens();
 
-		buildProgressBar();
-
-		$( '.admin-search-input' ).keyup( function( event ){
-			var term = $( this ).val();
+		$( '#adminbar-search' ).keyup( function( event ){
+			var term = $( '#adminbar-search' ).val();
+			console.log( term );
 			if( term != lastentry) {
 				$.ajax({
 					type: 'post',
 					dataType: 'json',
 					url: screenIndexer.ajaxurl,
 					data: { action : 'admin_screen_search_autocomplete', term : term },
-					success: function( data ) {
+					success: function( response ) {
+						console.log( response );
 						$( '.admin-search-autocomplete ul' ).show().width( 'auto' ).addClass( 'open' );
-						menuResults( data );
+						menuResults( response );
 						$( '.admin-bar-autocomplete ul' ).focusout( function() {
 							$( '.admin-search-autocomplete ul' ).animate({ opacity: 0, width: 0 }, 300 );
 						});
+					},
+					error: function( j, t, e ) {
+						console.log( j.responseText );
 					}
 				});
 			}
@@ -46,13 +54,11 @@
 			data : { action: 'check_screens', slugs : slugArray },
 			success: function( response ) {
 				indexAdminScreens( totalScreens );
+			},
+			error: function( j, t, e ) {
+				console.log( j.responseText );
 			}
 		});
-	}
-
-	function buildProgressBar () {
-		$( '#wpadminbar' ).prepend( '<div id="admin-search-progress-bar"><div></div></div>' );
-		$( '#admin-search-progress-bar' ).css( { 'height': '2px' } );
 	}
 
 	function indexAdminScreens( totalScreens ) {
@@ -79,6 +85,9 @@
 			data : { action: 'update_search_index', label : label, path : path, markup : markup },
 			success : function() {
 				increaseProgressBar( loadedScreens, totalScreens );
+			},
+			error: function( j, t, e ) {
+				console.log( j.responseText );
 			}
 		});
 	}
