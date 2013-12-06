@@ -1,3 +1,5 @@
+// todo  Needs to comply with WP JS coding standards
+
 ( function ($) {
 
 	// Insert Progress Bar
@@ -6,6 +8,9 @@
 	$( '#adminbar-search' ).attr('autocomplete', 'off');
 
 	$( document ).ready( function() {
+
+		// Highlights search string on resulting page using URL parameter
+		highlight();
 
 		// Checks to see if Admin Menu has changed.
 		checkScreens();
@@ -34,10 +39,10 @@
 			var lastentry = term;
 		});
 
-		highlight();
-
 	});
 
+	// Checks to see if Admin Menu has changed.
+	// todo  Need to ensure this is working.
 	function checkScreens() {
 		//send list of slugs to function
 		var slugArray = [];
@@ -60,6 +65,7 @@
 		});
 	}
 
+	// "Crawls" pages to save content
 	function indexAdminScreens( totalScreens ) {
 		var loadedScreens = 1;
 		$( '#adminmenu li > a' ).each( function() {
@@ -76,6 +82,7 @@
 		});
 	}
 
+	// Helps screen indexer by actually sending the screen's markup
 	function sendScreenMarkup( label, path, markup, loadedScreens, totalScreens ) {
 		$.ajax({
 			type : 'post',
@@ -100,6 +107,7 @@
 		}
 	}
 
+	// Highlights menu items that contain search results
 	function menuResults( data ) {
 		$( '#adminmenu li.wp-has-submenu' ).removeClass( 'opensub' );
 		$( '#adminmenu a' ).removeClass( 'admin-search-result h1 h2 h3 h4 h5 h6 th label td a strong em p span' );
@@ -137,19 +145,7 @@
 		});
 	}
 
-	function getParameterByName( name ) {
-		var href = window.location.href;
-		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-		var regexS = "[\\?&]"+name+"=([^&#]*)";
-		var regex = new RegExp( regexS );
-		var results = regex.exec( href );
-		if( results == null ) {
-			return "";
-		} else {
-			return decodeURIComponent(results[1].replace(/\+/g, " "));
-		}
-	}
-
+	// Highlights search string on resulting page using URL parameter
 	// todo  Needs to account for strings with inline html elements inside,
 	//       like "This is <strong>a string</strong>."
 	function highlight() {
@@ -160,6 +156,19 @@
 					$( this ).wrapInner( '<span class="highlighted"></span>' );
 				}
 			});
+		}
+	}
+
+	function getParameterByName( name ) {
+		var href = window.location.href;
+		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+		var regexS = "[\\?&]"+name+"=([^&#]*)";
+		var regex = new RegExp( regexS );
+		var results = regex.exec( href );
+		if( results == null ) {
+			return "";
+		} else {
+			return decodeURIComponent(results[1].replace(/\+/g, " "));
 		}
 	}
 
