@@ -1,5 +1,5 @@
 === Admin Screen Search ===
-Contributors:      X-team, johnregan3
+Contributors:      xwp, johnregan3
 Requires at least: 3.6
 Tested up to:      3.7
 Stable tag:        trunk
